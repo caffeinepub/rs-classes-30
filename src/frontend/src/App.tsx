@@ -6,14 +6,18 @@ import ClassSelectPage from "./pages/ClassSelectPage";
 import ContentPage from "./pages/ContentPage";
 import LoginPage from "./pages/LoginPage";
 import ModeSelectPage from "./pages/ModeSelectPage";
+import ProgressPage from "./pages/ProgressPage";
 import SubjectSelectPage from "./pages/SubjectSelectPage";
+import TalkToSiwachanPage from "./pages/TalkToSiwachanPage";
 
 export type AppView =
   | "login"
   | "classSelect"
   | "subjectSelect"
   | "modeSelect"
-  | "content";
+  | "content"
+  | "talkToSir"
+  | "progress";
 
 export interface AppState {
   phone: string | null;
@@ -140,6 +144,14 @@ function StudentApp() {
     setView("login");
   }
 
+  function handleTalkToSir() {
+    setView("talkToSir");
+  }
+
+  function handleProgress() {
+    setView("progress");
+  }
+
   return (
     <>
       {view === "login" && <LoginPage onLoginSuccess={handleLoginSuccess} />}
@@ -148,6 +160,8 @@ function StudentApp() {
           phone={appState.phone!}
           onClassSelect={handleClassSelect}
           onLogout={handleLogout}
+          onTalkToSir={handleTalkToSir}
+          onProgress={handleProgress}
         />
       )}
       {view === "subjectSelect" && (
@@ -157,6 +171,8 @@ function StudentApp() {
           onSubjectSelect={handleSubjectSelect}
           onBack={() => setView("classSelect")}
           onLogout={handleLogout}
+          onTalkToSir={handleTalkToSir}
+          onProgress={handleProgress}
         />
       )}
       {view === "modeSelect" && (
@@ -167,6 +183,8 @@ function StudentApp() {
           onModeSelect={handleModeSelect}
           onBack={handleBack}
           onLogout={handleLogout}
+          onTalkToSir={handleTalkToSir}
+          onProgress={handleProgress}
         />
       )}
       {view === "content" && (
@@ -178,6 +196,26 @@ function StudentApp() {
           mode={appState.selectedMode!}
           onBack={handleBack}
           onLogout={handleLogout}
+          onTalkToSir={handleTalkToSir}
+          onProgress={handleProgress}
+        />
+      )}
+      {view === "talkToSir" && (
+        <TalkToSiwachanPage
+          onBack={() => setView("classSelect")}
+          studentName={appState.studentName}
+          onTalkToSir={handleTalkToSir}
+          onProgress={handleProgress}
+        />
+      )}
+      {view === "progress" && (
+        <ProgressPage
+          phone={appState.phone}
+          studentName={appState.studentName}
+          selectedClass={appState.selectedClass}
+          onBack={() => setView("classSelect")}
+          onTalkToSir={handleTalkToSir}
+          onProgress={handleProgress}
         />
       )}
       <Toaster position="top-center" richColors />

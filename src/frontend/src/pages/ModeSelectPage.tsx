@@ -16,6 +16,8 @@ interface ModeSelectPageProps {
   onModeSelect: (mode: ContentType | "doubt") => void;
   onBack: () => void;
   onLogout: () => void;
+  onTalkToSir?: () => void;
+  onProgress?: () => void;
 }
 
 const MODES = [
@@ -72,10 +74,18 @@ export default function ModeSelectPage({
   onModeSelect,
   onBack,
   onLogout,
+  onTalkToSir,
+  onProgress,
 }: ModeSelectPageProps) {
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <AppHeader onLogout={onLogout} onBack={onBack} showBack />
+      <AppHeader
+        onLogout={onLogout}
+        onBack={onBack}
+        showBack
+        onTalkToSir={onTalkToSir}
+        onProgress={onProgress}
+      />
 
       {/* Header */}
       <div

@@ -10,6 +10,8 @@ interface SubjectSelectPageProps {
   onSubjectSelect: (subjectId: bigint, subjectName: string) => void;
   onBack: () => void;
   onLogout: () => void;
+  onTalkToSir?: () => void;
+  onProgress?: () => void;
 }
 
 const SUBJECT_ICONS = [
@@ -26,12 +28,20 @@ export default function SubjectSelectPage({
   onSubjectSelect,
   onBack,
   onLogout,
+  onTalkToSir,
+  onProgress,
 }: SubjectSelectPageProps) {
   const { data: subjects, isLoading } = useGetSubjects(selectedClass);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <AppHeader onLogout={onLogout} onBack={onBack} showBack />
+      <AppHeader
+        onLogout={onLogout}
+        onBack={onBack}
+        showBack
+        onTalkToSir={onTalkToSir}
+        onProgress={onProgress}
+      />
 
       {/* Header */}
       <div

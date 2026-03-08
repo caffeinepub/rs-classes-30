@@ -5,6 +5,8 @@ interface ClassSelectPageProps {
   phone: string;
   onClassSelect: (classNumber: bigint) => void;
   onLogout: () => void;
+  onTalkToSir?: () => void;
+  onProgress?: () => void;
 }
 
 const CLASS_COLORS = [
@@ -41,10 +43,16 @@ export default function ClassSelectPage({
   phone,
   onClassSelect,
   onLogout,
+  onTalkToSir,
+  onProgress,
 }: ClassSelectPageProps) {
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <AppHeader onLogout={onLogout} />
+      <AppHeader
+        onLogout={onLogout}
+        onTalkToSir={onTalkToSir}
+        onProgress={onProgress}
+      />
 
       {/* Hero banner */}
       <div

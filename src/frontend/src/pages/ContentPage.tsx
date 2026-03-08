@@ -37,6 +37,8 @@ interface ContentPageProps {
   mode: ContentType | "doubt";
   onBack: () => void;
   onLogout: () => void;
+  onTalkToSir?: () => void;
+  onProgress?: () => void;
 }
 
 const MODE_META: Record<
@@ -82,6 +84,8 @@ export default function ContentPage({
   mode,
   onBack,
   onLogout,
+  onTalkToSir,
+  onProgress,
 }: ContentPageProps) {
   const meta = MODE_META[mode] || MODE_META[ContentType.liveClass];
   const Icon = meta.icon;
@@ -95,7 +99,13 @@ export default function ContentPage({
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <AppHeader onLogout={onLogout} onBack={onBack} showBack />
+      <AppHeader
+        onLogout={onLogout}
+        onBack={onBack}
+        showBack
+        onTalkToSir={onTalkToSir}
+        onProgress={onProgress}
+      />
 
       {/* Header */}
       <div

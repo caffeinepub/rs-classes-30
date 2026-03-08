@@ -17,13 +17,16 @@ import {
   CheckCircle2,
   Clock,
   ExternalLink,
+  Eye,
   FileText,
   HelpCircle,
   Loader2,
   Lock,
   MessageCircle,
+  Phone,
   Plus,
   Send,
+  ShieldCheck,
   Trash2,
 } from "lucide-react";
 import { motion } from "motion/react";
@@ -35,7 +38,6 @@ import {
   useAddContent,
   useAddQuiz,
   useAddSubject,
-  useAdminLogin,
   useDeleteContent,
   useDeleteSubject,
   useGetAllDoubts,
@@ -43,24 +45,50 @@ import {
   useGetContent as useGetQuizContent,
   useGetSubjects,
   useReplyDoubt,
+  useRequestOtp,
+  useVerifyOtp,
 } from "../hooks/useQueries";
 
 // ─── Admin Login ───────────────────────────────────────────────────────────────
 
 function AdminLogin({ onLoginSuccess }: { onLoginSuccess: () => void }) {
-  const [password, setPassword] = useState("");
-  const adminLogin = useAdminLogin();
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
+  const [step, setStep] = useState<"phone" | "otp">("phone");
+  const [sentOtp, setSentOtp] = useState<string>("");
 
-  async function handleLogin(e: React.FormEvent) {
+  const requestOtp = useRequestOtp();
+  const verifyOtp = useVerifyOtp();
+
+  async function handleSendOtp(e: React.FormEvent) {
     e.preventDefault();
-    if (!password.trim()) return;
+    if (!phone.trim() || phone.length < 10) {
+      toast.error("Please enter a valid 10-digit phone number");
+      return;
+    }
     try {
-      const ok = await adminLogin.mutateAsync(password.trim());
-      if (ok) {
+      const result = await requestOtp.mutateAsync(phone.trim());
+      setSentOtp(result);
+      setStep("otp");
+      toast.success("OTP generated! Niche dekho aapka OTP.");
+    } catch {
+      toast.error("Failed to generate OTP. Please try again.");
+    }
+  }
+
+  async function handleVerifyOtp(e: React.FormEvent) {
+    e.preventDefault();
+    if (!otp.trim()) return;
+    try {
+      const valid = await verifyOtp.mutateAsync({
+        phone: phone.trim(),
+        otp: otp.trim(),
+      });
+      if (valid) {
         toast.success("Welcome, Admin!");
         onLoginSuccess();
       } else {
-        toast.error("Invalid password.");
+        toast.error("Invalid OTP. Please try again.");
       }
     } catch {
       toast.error("Login failed. Please try again.");
@@ -69,7 +97,7 @@ function AdminLogin({ onLoginSuccess }: { onLoginSuccess: () => void }) {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center"
+      className="min-h-screen flex items-center justify-center relative overflow-hidden"
       style={{
         background:
           "linear-gradient(160deg, oklch(0.22 0.08 268), oklch(0.32 0.1 290))",
@@ -106,37 +134,134 @@ function AdminLogin({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         </div>
 
         <div className="bg-white/97 rounded-2xl p-6 shadow-card-hover">
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="admin-pw" className="text-sm font-medium">
-                Password
-              </Label>
-              <Input
-                id="admin-pw"
-                data-ocid="admin.login_input"
-                type="password"
-                placeholder="Enter admin password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="h-11"
-                autoComplete="current-password"
-              />
-            </div>
-            <Button
-              data-ocid="admin.login_button"
-              type="submit"
-              className="w-full h-11 font-bold bg-brand-indigo hover:bg-brand-indigo/90 text-white"
-              disabled={adminLogin.isPending}
+          <h2 className="text-base font-display font-bold text-foreground mb-1">
+            {step === "phone" ? "Phone se Login karein" : "OTP Verify karein"}
+          </h2>
+          <p className="text-sm text-muted-foreground mb-5">
+            {step === "phone"
+              ? "Apna phone number enter karein"
+              : `OTP bheja gaya +91 ${phone} ke liye`}
+          </p>
+
+          {/* Prominent OTP display banner */}
+          {step === "otp" && sentOtp && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
+              className="mb-4 rounded-xl p-4 text-center"
+              style={{
+                background:
+                  "linear-gradient(135deg, oklch(0.95 0.08 85), oklch(0.92 0.1 60))",
+                border: "2px solid oklch(0.65 0.19 45)",
+              }}
             >
-              {adminLogin.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Logging in…
-                </>
-              ) : (
-                "Login to Admin Panel"
-              )}
-            </Button>
-          </form>
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <Eye className="h-4 w-4 text-amber-700" />
+                <p className="text-xs font-bold uppercase tracking-wider text-amber-800">
+                  Aapka Demo OTP
+                </p>
+              </div>
+              <p className="text-4xl font-mono font-extrabold tracking-[0.3em] text-amber-900 my-1">
+                {sentOtp}
+              </p>
+              <p className="text-[10px] text-amber-700/80">
+                Yeh OTP neeche enter karein aur verify karein
+              </p>
+            </motion.div>
+          )}
+
+          {step === "phone" ? (
+            <form onSubmit={handleSendOtp} className="space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="admin-phone" className="text-sm font-medium">
+                  Phone Number
+                </Label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="admin-phone"
+                    data-ocid="admin.phone_input"
+                    type="tel"
+                    placeholder="10-digit mobile number"
+                    value={phone}
+                    onChange={(e) =>
+                      setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))
+                    }
+                    className="pl-9 h-11 text-base font-mono"
+                    autoComplete="tel"
+                    inputMode="numeric"
+                  />
+                </div>
+              </div>
+              <Button
+                data-ocid="admin.send_otp_button"
+                type="submit"
+                className="w-full h-11 font-bold bg-brand-saffron hover:bg-brand-saffron/90 text-white"
+                disabled={requestOtp.isPending}
+              >
+                {requestOtp.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> OTP bhej
+                    raha hai…
+                  </>
+                ) : (
+                  "OTP Mangaiye"
+                )}
+              </Button>
+            </form>
+          ) : (
+            <form onSubmit={handleVerifyOtp} className="space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="admin-otp" className="text-sm font-medium">
+                  OTP Enter Karein
+                </Label>
+                <div className="relative">
+                  <ShieldCheck className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="admin-otp"
+                    data-ocid="admin.otp_input"
+                    type="text"
+                    placeholder="OTP enter karein"
+                    value={otp}
+                    onChange={(e) =>
+                      setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
+                    }
+                    className="pl-9 h-11 text-base font-mono tracking-widest"
+                    autoComplete="one-time-code"
+                    inputMode="numeric"
+                  />
+                </div>
+              </div>
+              <Button
+                data-ocid="admin.login_button"
+                type="submit"
+                className="w-full h-11 font-bold bg-brand-indigo hover:bg-brand-indigo/90 text-white"
+                disabled={verifyOtp.isPending}
+              >
+                {verifyOtp.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Verify ho
+                    raha hai…
+                  </>
+                ) : (
+                  "Admin Panel mein Jaiye"
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full text-sm text-muted-foreground"
+                onClick={() => {
+                  setStep("phone");
+                  setOtp("");
+                  setSentOtp("");
+                }}
+              >
+                Phone number badlein
+              </Button>
+            </form>
+          )}
         </div>
 
         <p className="text-center text-white/30 text-xs mt-6">
