@@ -50,6 +50,17 @@ export const Doubt = IDL.Record({
   'phone' : Phone,
   'reply' : IDL.Opt(IDL.Text),
 });
+export const Student = IDL.Record({
+  'classNumber' : ClassNumber,
+  'name' : IDL.Text,
+  'phone' : Phone,
+});
+export const Announcement = IDL.Record({
+  'id' : IDL.Nat,
+  'title' : IDL.Text,
+  'message' : IDL.Text,
+  'timestamp' : Time,
+});
 export const UserProfile = IDL.Record({
   'classNumber' : IDL.Opt(IDL.Nat),
   'name' : IDL.Text,
@@ -68,11 +79,6 @@ export const Quiz = IDL.Record({
   'title' : IDL.Text,
   'contentId' : ContentId,
   'questions' : IDL.Vec(Question),
-});
-export const Student = IDL.Record({
-  'classNumber' : ClassNumber,
-  'name' : IDL.Text,
-  'phone' : Phone,
 });
 export const Subject = IDL.Record({
   'id' : SubjectId,
@@ -108,6 +114,7 @@ export const idlService = IDL.Service({
     ),
   '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+  'addAnnouncement' : IDL.Func([IDL.Text, IDL.Text], [IDL.Nat], []),
   'addContent' : IDL.Func(
       [ClassNumber, SubjectId, ContentType, IDL.Text, IDL.Text, IDL.Text],
       [ContentId],
@@ -117,9 +124,12 @@ export const idlService = IDL.Service({
   'addSubject' : IDL.Func([ClassNumber, IDL.Text], [SubjectId], []),
   'adminLogin' : IDL.Func([IDL.Text], [IDL.Bool], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'deleteAnnouncement' : IDL.Func([IDL.Nat], [], []),
   'deleteContent' : IDL.Func([ContentId], [], []),
   'deleteSubject' : IDL.Func([SubjectId], [], []),
   'getAllDoubts' : IDL.Func([], [IDL.Vec(Doubt)], ['query']),
+  'getAllStudents' : IDL.Func([], [IDL.Vec(Student)], ['query']),
+  'getAnnouncements' : IDL.Func([], [IDL.Vec(Announcement)], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getContent' : IDL.Func(
@@ -146,6 +156,7 @@ export const idlService = IDL.Service({
       [],
       [],
     ),
+  'updateContent' : IDL.Func([ContentId, IDL.Text, IDL.Text, IDL.Text], [], []),
   'updateStudentName' : IDL.Func([Phone, IDL.Text], [], []),
   'verifyOtp' : IDL.Func([Phone, IDL.Text], [IDL.Bool], []),
 });
@@ -195,6 +206,17 @@ export const idlFactory = ({ IDL }) => {
     'phone' : Phone,
     'reply' : IDL.Opt(IDL.Text),
   });
+  const Student = IDL.Record({
+    'classNumber' : ClassNumber,
+    'name' : IDL.Text,
+    'phone' : Phone,
+  });
+  const Announcement = IDL.Record({
+    'id' : IDL.Nat,
+    'title' : IDL.Text,
+    'message' : IDL.Text,
+    'timestamp' : Time,
+  });
   const UserProfile = IDL.Record({
     'classNumber' : IDL.Opt(IDL.Nat),
     'name' : IDL.Text,
@@ -213,11 +235,6 @@ export const idlFactory = ({ IDL }) => {
     'title' : IDL.Text,
     'contentId' : ContentId,
     'questions' : IDL.Vec(Question),
-  });
-  const Student = IDL.Record({
-    'classNumber' : ClassNumber,
-    'name' : IDL.Text,
-    'phone' : Phone,
   });
   const Subject = IDL.Record({
     'id' : SubjectId,
@@ -253,6 +270,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+    'addAnnouncement' : IDL.Func([IDL.Text, IDL.Text], [IDL.Nat], []),
     'addContent' : IDL.Func(
         [ClassNumber, SubjectId, ContentType, IDL.Text, IDL.Text, IDL.Text],
         [ContentId],
@@ -262,9 +280,12 @@ export const idlFactory = ({ IDL }) => {
     'addSubject' : IDL.Func([ClassNumber, IDL.Text], [SubjectId], []),
     'adminLogin' : IDL.Func([IDL.Text], [IDL.Bool], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'deleteAnnouncement' : IDL.Func([IDL.Nat], [], []),
     'deleteContent' : IDL.Func([ContentId], [], []),
     'deleteSubject' : IDL.Func([SubjectId], [], []),
     'getAllDoubts' : IDL.Func([], [IDL.Vec(Doubt)], ['query']),
+    'getAllStudents' : IDL.Func([], [IDL.Vec(Student)], ['query']),
+    'getAnnouncements' : IDL.Func([], [IDL.Vec(Announcement)], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getContent' : IDL.Func(
@@ -288,6 +309,11 @@ export const idlFactory = ({ IDL }) => {
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'submitDoubt' : IDL.Func(
         [Phone, ClassNumber, SubjectId, IDL.Text, IDL.Text],
+        [],
+        [],
+      ),
+    'updateContent' : IDL.Func(
+        [ContentId, IDL.Text, IDL.Text, IDL.Text],
         [],
         [],
       ),

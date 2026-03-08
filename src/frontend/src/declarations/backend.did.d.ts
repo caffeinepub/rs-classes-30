@@ -10,6 +10,12 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface Announcement {
+  'id' : bigint,
+  'title' : string,
+  'message' : string,
+  'timestamp' : Time,
+}
 export type ClassNumber = bigint;
 export interface Content {
   'id' : ContentId,
@@ -94,6 +100,7 @@ export interface _SERVICE {
   >,
   '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
+  'addAnnouncement' : ActorMethod<[string, string], bigint>,
   'addContent' : ActorMethod<
     [ClassNumber, SubjectId, ContentType, string, string, string],
     ContentId
@@ -102,9 +109,12 @@ export interface _SERVICE {
   'addSubject' : ActorMethod<[ClassNumber, string], SubjectId>,
   'adminLogin' : ActorMethod<[string], boolean>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'deleteAnnouncement' : ActorMethod<[bigint], undefined>,
   'deleteContent' : ActorMethod<[ContentId], undefined>,
   'deleteSubject' : ActorMethod<[SubjectId], undefined>,
   'getAllDoubts' : ActorMethod<[], Array<Doubt>>,
+  'getAllStudents' : ActorMethod<[], Array<Student>>,
+  'getAnnouncements' : ActorMethod<[], Array<Announcement>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getContent' : ActorMethod<
@@ -125,6 +135,7 @@ export interface _SERVICE {
     [Phone, ClassNumber, SubjectId, string, string],
     undefined
   >,
+  'updateContent' : ActorMethod<[ContentId, string, string, string], undefined>,
   'updateStudentName' : ActorMethod<[Phone, string], undefined>,
   'verifyOtp' : ActorMethod<[Phone, string], boolean>,
 }

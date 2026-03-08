@@ -319,4 +319,87 @@ export function useAdminLogin() {
   });
 }
 
+// ─── Students ─────────────────────────────────────────────────────────────────
+
+export function useGetAllStudents() {
+  const { actor, isFetching } = useActor();
+  return useQuery<import("../backend.d").Student[]>({
+    queryKey: ["allStudents"],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getAllStudents();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+// ─── Announcements ────────────────────────────────────────────────────────────
+
+export function useGetAnnouncements() {
+  const { actor, isFetching } = useActor();
+  return useQuery<import("../backend.d").Announcement[]>({
+    queryKey: ["announcements"],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getAnnouncements();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useAddAnnouncement() {
+  const { actor } = useActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      title,
+      message,
+    }: { title: string; message: string }) => {
+      if (!actor) throw new Error("No actor");
+      return actor.addAnnouncement(title, message);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["announcements"] });
+    },
+  });
+}
+
+export function useDeleteAnnouncement() {
+  const { actor } = useActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: bigint) => {
+      if (!actor) throw new Error("No actor");
+      return actor.deleteAnnouncement(id);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["announcements"] });
+    },
+  });
+}
+
+export function useUpdateContent() {
+  const { actor } = useActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      title,
+      link,
+      description,
+    }: {
+      id: bigint;
+      title: string;
+      link: string;
+      description: string;
+    }) => {
+      if (!actor) throw new Error("No actor");
+      return actor.updateContent(id, title, link, description);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["content"] });
+    },
+  });
+}
+
 export { ContentType };

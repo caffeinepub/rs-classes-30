@@ -5,7 +5,6 @@ import {
   ArrowRight,
   BookOpen,
   Eye,
-  Loader2,
   Phone,
   ShieldCheck,
   User,
@@ -13,7 +12,6 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useRequestOtp, useVerifyOtp } from "../hooks/useQueries";
 
 interface LoginPageProps {
   onLoginSuccess: (phone: string, name: string) => void;
@@ -32,10 +30,7 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
   const [step, setStep] = useState<Step>("details");
   const [sentOtp, setSentOtp] = useState<string>("");
 
-  const requestOtp = useRequestOtp();
-  const verifyOtp = useVerifyOtp();
-
-  async function handleSendOtp(e: React.FormEvent) {
+  function handleSendOtp(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim()) {
       toast.error("Apna naam likhein");
@@ -45,34 +40,22 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
       toast.error("10-digit phone number daalo");
       return;
     }
-    try {
-      const result = await requestOtp.mutateAsync(phone.trim());
-      setSentOtp(result);
-      setStep("showOtp");
-    } catch {
-      toast.error("OTP bhejne mein dikkat aayi. Dobara try karein.");
-    }
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    setSentOtp(newOtp);
+    setStep("showOtp");
   }
 
-  async function handleVerifyOtp(e: React.FormEvent) {
+  function handleVerifyOtp(e: React.FormEvent) {
     e.preventDefault();
     if (!otp.trim() || otp.length < 4) {
       toast.error("OTP daalo");
       return;
     }
-    try {
-      const valid = await verifyOtp.mutateAsync({
-        phone: phone.trim(),
-        otp: otp.trim(),
-      });
-      if (valid) {
-        toast.success("Login successful!");
-        onLoginSuccess(phone.trim(), name.trim());
-      } else {
-        toast.error("OTP galat hai. Dobara try karein.");
-      }
-    } catch {
-      toast.error("Verification fail hua. Dobara try karein.");
+    if (otp.trim() === sentOtp) {
+      toast.success("Login successful!");
+      onLoginSuccess(phone.trim(), name.trim());
+    } else {
+      toast.error("OTP galat hai. Dobara try karein.");
     }
   }
 
@@ -256,18 +239,8 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
                   data-ocid="login.send_otp_button"
                   type="submit"
                   className="w-full font-semibold h-11 bg-brand-saffron hover:bg-brand-saffron/90 text-white"
-                  disabled={requestOtp.isPending}
                 >
-                  {requestOtp.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> OTP bhej
-                      rahe hain…
-                    </>
-                  ) : (
-                    <>
-                      Send OTP <ArrowRight className="ml-2 h-4 w-4" />
-                    </>
-                  )}
+                  Send OTP <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </form>
             </motion.div>
@@ -393,16 +366,8 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
                   data-ocid="login.verify_button"
                   type="submit"
                   className="w-full font-semibold h-11 bg-brand-indigo hover:bg-brand-indigo/90 text-white"
-                  disabled={verifyOtp.isPending}
                 >
-                  {verifyOtp.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Verify
-                      ho raha hai…
-                    </>
-                  ) : (
-                    "Verify & Login"
-                  )}
+                  Verify & Login
                 </Button>
                 <Button
                   type="button"

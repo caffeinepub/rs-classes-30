@@ -14,7 +14,9 @@ import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
 import Storage "blob-storage/Storage";
 import MixinStorage "blob-storage/Mixin";
+import Migration "migration";
 
+(with migration = Migration.run)
 actor {
   include MixinStorage();
 
@@ -114,6 +116,13 @@ actor {
     classNumber : ClassNumber;
   };
 
+  public type Announcement = {
+    id : Nat;
+    title : Text;
+    message : Text;
+    timestamp : Time.Time;
+  };
+
   module Subject {
     public func compare(subject1 : Subject, subject2 : Subject) : Order.Order {
       Nat.compare(subject1.id, subject2.id);
@@ -129,11 +138,13 @@ actor {
   var nextSubjectId = 1;
   var nextContentId = 1;
   var nextDoubtId = 1;
+  var nextAnnouncementId = 1;
 
   let subjects = Map.empty<SubjectId, Subject>();
   let quizzes = Map.empty<ContentId, Quiz>();
   let content = Map.empty<ContentId, Content>();
   let doubts = Map.empty<Nat, Doubt>();
+  let announcements = Map.empty<Nat, Announcement>();
 
   let students = Map.empty<Phone, Student>();
   let otps = Map.empty<Phone, OTP>();
@@ -441,6 +452,75 @@ actor {
       };
       case (_) {
         Runtime.trap("Student already exists for phone: " # phone);
+      };
+    };
+  };
+
+  // Get all students (admin only)
+  public query ({ caller }) func getAllStudents() : async [Student] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can get all students");
+    };
+    students.values().toArray();
+  };
+
+  // Add announcement (admin only)
+  public shared ({ caller }) func addAnnouncement(title : Text, message : Text) : async Nat {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can add announcements");
+    };
+
+    let announcement : Announcement = {
+      id = nextAnnouncementId;
+      title;
+      message;
+      timestamp = Time.now();
+    };
+
+    announcements.add(nextAnnouncementId, announcement);
+    let currentId = nextAnnouncementId;
+    nextAnnouncementId += 1;
+    currentId;
+  };
+
+  // Get all announcements - Public (no auth required)
+  public query ({ caller }) func getAnnouncements() : async [Announcement] {
+    announcements.values().toArray();
+  };
+
+  // Delete announcement (admin only)
+  public shared ({ caller }) func deleteAnnouncement(id : Nat) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can delete announcements");
+    };
+
+    switch (announcements.get(id)) {
+      case (null) { Runtime.trap("Announcement not found: " # id.toText()) };
+      case (_) {
+        announcements.remove(id);
+      };
+    };
+  };
+
+  // Update content (admin only)
+  public shared ({ caller }) func updateContent(id : ContentId, title : Text, link : Text, description : Text) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can update content");
+    };
+
+    switch (content.get(id)) {
+      case (null) { Runtime.trap("Content not found: " # id.toText()) };
+      case (?existingContent) {
+        let updatedContent = {
+          id = existingContent.id;
+          classNumber = existingContent.classNumber;
+          subjectId = existingContent.subjectId;
+          contentType = existingContent.contentType;
+          title;
+          link;
+          description;
+        };
+        content.add(id, updatedContent);
       };
     };
   };

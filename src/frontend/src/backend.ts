@@ -133,6 +133,12 @@ export interface Doubt {
     phone: Phone;
     reply?: string;
 }
+export interface Announcement {
+    id: bigint;
+    title: string;
+    message: string;
+    timestamp: Time;
+}
 export interface Question {
     correctOption: bigint;
     text: string;
@@ -168,14 +174,18 @@ export interface backendInterface {
     _caffeineStorageRefillCashier(refillInformation: _CaffeineStorageRefillInformation | null): Promise<_CaffeineStorageRefillResult>;
     _caffeineStorageUpdateGatewayPrincipals(): Promise<void>;
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
+    addAnnouncement(title: string, message: string): Promise<bigint>;
     addContent(classNumber: ClassNumber, subjectId: SubjectId, contentType: ContentType, title: string, link: string, description: string): Promise<ContentId>;
     addQuiz(contentId: ContentId, title: string, questions: Array<Question>): Promise<void>;
     addSubject(classNumber: ClassNumber, name: string): Promise<SubjectId>;
     adminLogin(password: string): Promise<boolean>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    deleteAnnouncement(id: bigint): Promise<void>;
     deleteContent(id: ContentId): Promise<void>;
     deleteSubject(id: SubjectId): Promise<void>;
     getAllDoubts(): Promise<Array<Doubt>>;
+    getAllStudents(): Promise<Array<Student>>;
+    getAnnouncements(): Promise<Array<Announcement>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getContent(classNumber: ClassNumber, subjectId: SubjectId, contentType: ContentType): Promise<Array<Content>>;
@@ -190,6 +200,7 @@ export interface backendInterface {
     requestOtp(phone: Phone): Promise<string>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     submitDoubt(phone: Phone, classNumber: ClassNumber, subjectId: SubjectId, subjectName: string, doubtText: string): Promise<void>;
+    updateContent(id: ContentId, title: string, link: string, description: string): Promise<void>;
     updateStudentName(phone: Phone, name: string): Promise<void>;
     verifyOtp(phone: Phone, otp: string): Promise<boolean>;
 }
@@ -294,6 +305,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async addAnnouncement(arg0: string, arg1: string): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.addAnnouncement(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.addAnnouncement(arg0, arg1);
+            return result;
+        }
+    }
     async addContent(arg0: ClassNumber, arg1: SubjectId, arg2: ContentType, arg3: string, arg4: string, arg5: string): Promise<ContentId> {
         if (this.processError) {
             try {
@@ -364,6 +389,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async deleteAnnouncement(arg0: bigint): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteAnnouncement(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteAnnouncement(arg0);
+            return result;
+        }
+    }
     async deleteContent(arg0: ContentId): Promise<void> {
         if (this.processError) {
             try {
@@ -404,6 +443,34 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.getAllDoubts();
             return from_candid_vec_n12(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getAllStudents(): Promise<Array<Student>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAllStudents();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAllStudents();
+            return result;
+        }
+    }
+    async getAnnouncements(): Promise<Array<Announcement>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAnnouncements();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAnnouncements();
+            return result;
         }
     }
     async getCallerUserProfile(): Promise<UserProfile | null> {
@@ -599,6 +666,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.submitDoubt(arg0, arg1, arg2, arg3, arg4);
+            return result;
+        }
+    }
+    async updateContent(arg0: ContentId, arg1: string, arg2: string, arg3: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateContent(arg0, arg1, arg2, arg3);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateContent(arg0, arg1, arg2, arg3);
             return result;
         }
     }

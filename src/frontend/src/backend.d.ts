@@ -40,6 +40,12 @@ export interface Doubt {
     phone: Phone;
     reply?: string;
 }
+export interface Announcement {
+    id: bigint;
+    title: string;
+    message: string;
+    timestamp: Time;
+}
 export interface Question {
     correctOption: bigint;
     text: string;
@@ -68,14 +74,18 @@ export enum UserRole {
     guest = "guest"
 }
 export interface backendInterface {
+    addAnnouncement(title: string, message: string): Promise<bigint>;
     addContent(classNumber: ClassNumber, subjectId: SubjectId, contentType: ContentType, title: string, link: string, description: string): Promise<ContentId>;
     addQuiz(contentId: ContentId, title: string, questions: Array<Question>): Promise<void>;
     addSubject(classNumber: ClassNumber, name: string): Promise<SubjectId>;
     adminLogin(password: string): Promise<boolean>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    deleteAnnouncement(id: bigint): Promise<void>;
     deleteContent(id: ContentId): Promise<void>;
     deleteSubject(id: SubjectId): Promise<void>;
     getAllDoubts(): Promise<Array<Doubt>>;
+    getAllStudents(): Promise<Array<Student>>;
+    getAnnouncements(): Promise<Array<Announcement>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getContent(classNumber: ClassNumber, subjectId: SubjectId, contentType: ContentType): Promise<Array<Content>>;
@@ -90,6 +100,7 @@ export interface backendInterface {
     requestOtp(phone: Phone): Promise<string>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     submitDoubt(phone: Phone, classNumber: ClassNumber, subjectId: SubjectId, subjectName: string, doubtText: string): Promise<void>;
+    updateContent(id: ContentId, title: string, link: string, description: string): Promise<void>;
     updateStudentName(phone: Phone, name: string): Promise<void>;
     verifyOtp(phone: Phone, otp: string): Promise<boolean>;
 }
