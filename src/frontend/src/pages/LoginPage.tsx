@@ -1,18 +1,19 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { BookOpen, Loader2, Phone, ShieldCheck } from "lucide-react";
+import { BookOpen, Loader2, Phone, ShieldCheck, User } from "lucide-react";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useRequestOtp, useVerifyOtp } from "../hooks/useQueries";
 
 interface LoginPageProps {
-  onLoginSuccess: (phone: string) => void;
+  onLoginSuccess: (phone: string, name: string) => void;
 }
 
 export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
   const [phone, setPhone] = useState("");
+  const [name, setName] = useState("");
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState<"phone" | "otp">("phone");
   const [sentOtp, setSentOtp] = useState<string>("");
@@ -22,6 +23,10 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
 
   async function handleSendOtp(e: React.FormEvent) {
     e.preventDefault();
+    if (!name.trim()) {
+      toast.error("Please enter your name");
+      return;
+    }
     if (!phone.trim() || phone.length < 10) {
       toast.error("Please enter a valid 10-digit phone number");
       return;
@@ -53,7 +58,7 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
       });
       if (valid) {
         toast.success("Login successful!");
-        onLoginSuccess(phone.trim());
+        onLoginSuccess(phone.trim(), name.trim());
       } else {
         toast.error("Invalid OTP. Please try again.");
       }
@@ -161,6 +166,24 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
                     className="pl-9 text-base font-mono"
                     autoComplete="tel"
                     inputMode="numeric"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="student-name" className="text-sm font-medium">
+                  Student Name
+                </Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="student-name"
+                    data-ocid="login.name_input"
+                    type="text"
+                    placeholder="Apna naam likhein"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="pl-9 text-base"
+                    autoComplete="name"
                   />
                 </div>
               </div>

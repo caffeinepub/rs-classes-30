@@ -17,6 +17,7 @@ export type AppView =
 
 export interface AppState {
   phone: string | null;
+  studentName: string | null;
   selectedClass: bigint | null;
   selectedSubjectId: bigint | null;
   selectedSubjectName: string | null;
@@ -32,6 +33,7 @@ function loadSession(): AppState {
       const data = JSON.parse(saved);
       return {
         phone: data.phone ?? null,
+        studentName: data.studentName ?? null,
         selectedClass:
           data.selectedClass !== null ? BigInt(data.selectedClass) : null,
         selectedSubjectId:
@@ -47,6 +49,7 @@ function loadSession(): AppState {
   }
   return {
     phone: null,
+    studentName: null,
     selectedClass: null,
     selectedSubjectId: null,
     selectedSubjectName: null,
@@ -94,8 +97,8 @@ function StudentApp() {
     saveSession(appState);
   }, [appState]);
 
-  function handleLoginSuccess(phone: string) {
-    setAppState((prev) => ({ ...prev, phone }));
+  function handleLoginSuccess(phone: string, name: string) {
+    setAppState((prev) => ({ ...prev, phone, studentName: name }));
     setView("classSelect");
   }
 
@@ -128,6 +131,7 @@ function StudentApp() {
     sessionStorage.removeItem(SESSION_KEY);
     setAppState({
       phone: null,
+      studentName: null,
       selectedClass: null,
       selectedSubjectId: null,
       selectedSubjectName: null,

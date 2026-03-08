@@ -101,21 +101,42 @@ export default function SubjectSelectPage({
             })}
           </div>
         ) : (
-          <div
-            data-ocid="subject_select.empty_state"
-            className="text-center py-16"
-          >
-            <div className="w-16 h-16 rounded-2xl bg-muted mx-auto flex items-center justify-center mb-4">
-              <BookOpen className="h-8 w-8 text-muted-foreground" />
-            </div>
-            <h3 className="font-display font-bold text-lg text-foreground mb-2">
-              No Subjects Yet
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              Subjects for Class {selectedClass.toString()} haven&apos;t been
-              added yet.
-              <br />
-              Please check back later or contact your teacher.
+          <div data-ocid="subject_select.empty_state" className="space-y-2.5">
+            {[
+              { id: 0n, name: "Maths" },
+              { id: 1n, name: "Science" },
+            ].map((subject, idx) => {
+              const Icon = SUBJECT_ICONS[idx % SUBJECT_ICONS.length];
+              return (
+                <motion.button
+                  key={subject.id.toString()}
+                  data-ocid={`subject_select.item.${idx + 1}`}
+                  initial={{ opacity: 0, x: -16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.06 }}
+                  whileHover={{ x: 4 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => onSubjectSelect(subject.id, subject.name)}
+                  className="w-full flex items-center gap-3 p-4 bg-card rounded-xl border border-border shadow-card hover:shadow-card-hover hover:border-primary/30 transition-all text-left group"
+                >
+                  <div
+                    className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, oklch(0.65 0.19 45 / 15%), oklch(0.5 0.18 265 / 15%))",
+                    }}
+                  >
+                    <Icon className="h-5 w-5 text-brand-saffron" />
+                  </div>
+                  <span className="flex-1 font-body font-semibold text-foreground text-sm">
+                    {subject.name}
+                  </span>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                </motion.button>
+              );
+            })}
+            <p className="text-center text-xs text-muted-foreground pt-2">
+              Subjects added by admin will appear here
             </p>
           </div>
         )}

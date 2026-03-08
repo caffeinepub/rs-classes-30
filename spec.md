@@ -1,55 +1,30 @@
 # RS Classes 30
 
 ## Current State
-New project. No existing code.
+- Login page: Phone number input → OTP verification → student enters app
+- App.tsx stores phone in session, no student name
+- Subjects are admin-added; no default subjects exist
+- registerStudent backend call only stores phone + classNumber (name is empty)
 
 ## Requested Changes (Diff)
 
 ### Add
-- Student login via phone number + OTP (simulated OTP for now since SMS is not supported)
-- Class selector (Class 1 to 12) as first screen after login
-- Subject selector based on chosen class
-- Content mode selector: Live Class, Recorded Class, Quiz, PDF Notes, Doubt
-- Content viewer for each mode:
-  - Live Class: shows a live class link or embed (URL stored by admin)
-  - Recorded Class: video player or link to uploaded video
-  - Quiz: question list with options and answer reveal
-  - PDF Notes: PDF viewer or download link
-  - Doubt: student can submit a text doubt with their class/subject context
-- Admin section accessible via password login
-  - Upload/manage content: recorded videos, PDFs, live class links, quizzes
-  - View all submitted doubts (with class, subject, student info, doubt text)
-  - Manage subjects per class
-- Student profile: stores phone number, selected class preference
+- Student name input field below phone number on LoginPage (step = "phone")
+- Name is collected before OTP is sent, stored in component state
+- After OTP verification, call registerStudent with name (or update if already exists)
+- Name stored in AppState and session storage
+- Subject seed: Show "Maths" and "Science" as built-in default subjects in SubjectSelectPage when no admin-added subjects exist (frontend-only fallback with placeholder IDs)
 
 ### Modify
-- None (new project)
+- LoginPage: add name field below phone field, validate name is non-empty before sending OTP
+- App.tsx: add `studentName` to AppState; pass name through login flow; on login success store name
+- SubjectSelectPage: if no subjects from backend, show Maths and Science as demo/default options
 
 ### Remove
-- None (new project)
+- Nothing removed
 
 ## Implementation Plan
-
-**Backend (Motoko):**
-- Student entity: id, phone, name (optional), createdAt
-- Admin entity: single admin with password hash
-- Class list: fixed 1-12
-- Subject entity: id, classNumber, name
-- Content entity: id, classNumber, subjectId, type (LiveClass | RecordedClass | Quiz | PDFNotes), title, url/data, createdAt
-- Quiz entity: id, contentId, questions array (question, options[4], correctIndex)
-- Doubt entity: id, studentId, classNumber, subjectId, doubtText, createdAt, status (pending/answered), adminReply
-
-**APIs:**
-- requestOTP(phone) -> OTP code (returned directly for simulation)
-- verifyOTP(phone, otp) -> session token
-- getClasses() -> [1..12]
-- getSubjects(classNumber) -> [Subject]
-- getContent(classNumber, subjectId, type) -> [Content]
-- submitDoubt(classNumber, subjectId, doubtText) -> Doubt
-- adminLogin(password) -> admin session token
-- addSubject(classNumber, name) -> Subject
-- addContent(classNumber, subjectId, type, title, url) -> Content
-- addQuiz(contentId, questions) -> Quiz
-- getDoubts() -> [Doubt] (admin only)
-- replyDoubt(doubtId, reply) -> Doubt (admin only)
-- deleteContent(contentId) -> bool
+1. Update LoginPage.tsx: add `name` state, render name Input below phone Input, validate name before handleSendOtp, pass name to onLoginSuccess callback
+2. Update App.tsx: add `studentName` to AppState and session serialization; update handleLoginSuccess to accept name; pass studentName to downstream pages
+3. Update SubjectSelectPage.tsx: add default subjects (Maths, Science) as fallback when subjects array is empty — use placeholder bigint IDs (0n, 1n) that are clearly demo
+4. Update useQueries.ts: extend useRegisterStudent to accept name param and pass it to backend registerStudent call (or add separate updateStudentName call after registration)
