@@ -1,5 +1,6 @@
 import { Toaster } from "@/components/ui/sonner";
 import { useEffect, useState } from "react";
+import AppFooter from "./components/AppFooter";
 import type { ContentType } from "./hooks/useQueries";
 import AdminPage from "./pages/AdminPage";
 import ClassSelectPage from "./pages/ClassSelectPage";
@@ -81,6 +82,7 @@ export default function App() {
     return (
       <>
         <AdminPage />
+        <AppFooter />
         <Toaster position="top-center" richColors />
       </>
     );
@@ -218,6 +220,7 @@ function StudentApp() {
           onProgress={handleProgress}
         />
       )}
+      {view !== "login" && <AppFooter />}
       <Toaster position="top-center" richColors />
     </>
   );
