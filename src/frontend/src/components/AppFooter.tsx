@@ -13,9 +13,6 @@ export default function AppFooter() {
           Graphic designed by{" "}
           <span className="text-foreground/70 font-medium">Ankush Kumar</span>
         </p>
-        <p className="text-[9px] text-muted-foreground/60 leading-snug mt-0.5">
-          Built using Caffeine AI
-        </p>
       </div>
     </footer>
   );

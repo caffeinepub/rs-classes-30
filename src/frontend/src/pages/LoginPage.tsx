@@ -390,16 +390,6 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
           <p className="text-white/50 text-[10px]">
             Class designed by Siwachan Sir · Graphic designed by Ankush Kumar
           </p>
-          <p className="text-white/25 text-[9px] mt-1">
-            <a
-              href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-white/50 transition-colors"
-            >
-              Built using Caffeine AI
-            </a>
-          </p>
         </div>
       </div>
     </div>

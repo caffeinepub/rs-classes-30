@@ -188,15 +188,7 @@ function AdminLogin({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         </div>
 
         <p className="text-center text-white/30 text-xs mt-6">
-          © {new Date().getFullYear()}.{" "}
-          <a
-            href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-white/60 transition-colors"
-          >
-            Built with ♥ using caffeine.ai
-          </a>
+          © {new Date().getFullYear()} RS Classes 30
         </p>
       </motion.div>
     </div>
@@ -388,15 +380,7 @@ function AdminCMS({ onLogout }: { onLogout: () => void }) {
             <span>Logout</span>
           </button>
           <p className="text-center text-white/20 text-[10px] mt-3">
-            © {new Date().getFullYear()}.{" "}
-            <a
-              href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-white/40"
-            >
-              caffeine.ai
-            </a>
+            © {new Date().getFullYear()} RS Classes 30
           </p>
         </div>
       </aside>

@@ -5,6 +5,7 @@ import type { ContentType } from "./hooks/useQueries";
 import AdminPage from "./pages/AdminPage";
 import ClassSelectPage from "./pages/ClassSelectPage";
 import ContentPage from "./pages/ContentPage";
+import JoinCodePage from "./pages/JoinCodePage";
 import LoginPage from "./pages/LoginPage";
 import ModeSelectPage from "./pages/ModeSelectPage";
 import ProgressPage from "./pages/ProgressPage";
@@ -12,6 +13,7 @@ import SubjectSelectPage from "./pages/SubjectSelectPage";
 import TalkToSiwachanPage from "./pages/TalkToSiwachanPage";
 
 export type AppView =
+  | "joinCode"
   | "login"
   | "classSelect"
   | "subjectSelect"
@@ -30,6 +32,7 @@ export interface AppState {
 }
 
 const SESSION_KEY = "rs_classes_session";
+const CODE_VERIFIED_KEY = "rs_code_verified";
 
 function loadSession(): AppState {
   try {
@@ -94,6 +97,8 @@ export default function App() {
 function StudentApp() {
   const [appState, setAppState] = useState<AppState>(loadSession);
   const [view, setView] = useState<AppView>(() => {
+    const codeVerified = sessionStorage.getItem(CODE_VERIFIED_KEY) === "yes";
+    if (!codeVerified) return "joinCode";
     const s = loadSession();
     if (s.phone) return "classSelect";
     return "login";
@@ -102,6 +107,11 @@ function StudentApp() {
   useEffect(() => {
     saveSession(appState);
   }, [appState]);
+
+  function handleCodeVerified() {
+    sessionStorage.setItem(CODE_VERIFIED_KEY, "yes");
+    setView("login");
+  }
 
   function handleLoginSuccess(phone: string, name: string) {
     setAppState((prev) => ({ ...prev, phone, studentName: name }));
@@ -135,6 +145,7 @@ function StudentApp() {
 
   function handleLogout() {
     sessionStorage.removeItem(SESSION_KEY);
+    sessionStorage.removeItem(CODE_VERIFIED_KEY);
     setAppState({
       phone: null,
       studentName: null,
@@ -143,7 +154,7 @@ function StudentApp() {
       selectedSubjectName: null,
       selectedMode: null,
     });
-    setView("login");
+    setView("joinCode");
   }
 
   function handleTalkToSir() {
@@ -156,6 +167,9 @@ function StudentApp() {
 
   return (
     <>
+      {view === "joinCode" && (
+        <JoinCodePage onCodeVerified={handleCodeVerified} />
+      )}
       {view === "login" && <LoginPage onLoginSuccess={handleLoginSuccess} />}
       {view === "classSelect" && (
         <ClassSelectPage
@@ -220,7 +234,7 @@ function StudentApp() {
           onProgress={handleProgress}
         />
       )}
-      {view !== "login" && <AppFooter />}
+      {view !== "login" && view !== "joinCode" && <AppFooter />}
       <Toaster position="top-center" richColors />
     </>
   );

@@ -153,15 +153,7 @@ export default function SubjectSelectPage({
       </main>
 
       <footer className="text-center py-4 text-muted-foreground text-xs border-t border-border/40">
-        © {new Date().getFullYear()}.{" "}
-        <a
-          href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hover:text-foreground transition-colors"
-        >
-          Built with ♥ using caffeine.ai
-        </a>
+        © {new Date().getFullYear()} RS Classes 30
       </footer>
     </div>
   );
